@@ -37,12 +37,15 @@ class ExcessReturnCalculator:
         # X_{t+1}
         fx["X"] = (fx["S_next"] / fx["spot"]) * (1 + fx["r_foreign"]) - (1 + fx["r_usd"])
 
+        # Label return with the month it is received (t+1), not formation month (t)
+        fx["date"] = fx["date"] + pd.offsets.MonthEnd(1)
+
         # Clean up
         result = fx.dropna(subset=["X"]).copy()
         result = result[["date", "currency", "X"]]
         result = result[
-            (result["date"] >= self.FULL_START) &
-            (result["date"] <= self.FULL_END)
+            (result["date"] >= pd.Timestamp(self.FULL_START)) &
+            (result["date"] <= pd.Timestamp(self.FULL_END))
         ]
         result = result.sort_values(["date", "currency"]).reset_index(drop=True)
 
@@ -73,7 +76,10 @@ class ExcessReturnCalculator:
             skew     = stats.skew(x)
             kurt     = stats.kurtosis(x)
             n        = len(x)
-            r_bar    = ir[ccy].dropna().mean() * 1200
+            #r_bar    = ir[ccy].dropna().mean() * 1200
+            ir_eval = ir[(ir["date"] >= pd.Timestamp(self.EVAL_START)) & 
+             (ir["date"] <= pd.Timestamp(self.FULL_END))].copy()
+            r_bar = ir_eval[ccy].dropna().mean()
 
             rows[ccy] = {
                 "Avg excess return" : round(mean_ann, 2),
@@ -117,6 +123,7 @@ class ExcessReturnCalculator:
 
         # Compute interest rate differentials: dt r_t^i = r_t^i - r_t^US
         delta_r = ir[self.CURRENCIES].subtract(ir["USD"], axis=0)
+        delta_r = delta_r.shift(1)
 
         # ── CS-CARRY ─────────────────────────────────────────────────────────────
         # Rank each month (1=lowest, 6=highest)
@@ -151,17 +158,30 @@ class ExcessReturnCalculator:
         return result, weights
     
     def plot_carry_weights(self, weights: pd.DataFrame) -> None:
-        fig, ax = plt.subplots(figsize=(12, 5))
-        for ccy in self.CURRENCIES:
-            ax.plot(weights["date"], weights[ccy], label=ccy)
-        ax.axhline(0, color="black", linewidth=0.8, linestyle="--")
-        ax.set_title("CS-CARRY Portfolio Weights Over Time")
-        ax.set_xlabel("Date")
-        ax.set_ylabel("Weight")
-        ax.legend()
+        group1 = ["AUD", "CAD", "EUR"]
+        group2 = ["GBP", "JPY", "NZD"]
+
+        linestyles = ["-", "--", "-."]
+        colors     = ["steelblue", "darkorange", "seagreen"]
+
+        fig, axes = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
+
+        for ax, group, title in zip(axes, [group1, group2],
+                                ["AUD, CAD, EUR", "GBP, JPY, NZD"]):
+            for ccy, ls, col in zip(group, linestyles, colors):
+                ax.plot(weights["date"], weights[ccy],
+                        label=ccy, linestyle=ls, color=col, linewidth=1.2)
+            ax.axhline(0, color="black", linewidth=0.8, linestyle=":")
+            ax.set_ylabel("Weight")
+            ax.legend(loc="upper right")
+            ax.grid(True, alpha=0.3)
+
+        axes[0].set_title("CS-CARRY Portfolio Weights Over Time")
+        axes[1].set_xlabel("Date")
+
         plt.tight_layout()
         plt.savefig("data/cs_carry_weights.png", dpi=150)
-        plt.show()
+        plt.show(block=False)
 
     def compute_carry_summary(self, carry: pd.DataFrame) -> pd.DataFrame:
         """

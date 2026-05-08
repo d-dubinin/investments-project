@@ -51,7 +51,7 @@ class InterestRateFetcher:
 
         rates_long = pd.concat(frames, ignore_index=True)
         rates_long.columns = [c.lower() for c in rates_long.columns]
-        rates_long["rate"] = rates_long["rate"] / 1200
+        #rates_long["rate"] = rates_long["rate"] / 1200
 
         rates_wide = (
             rates_long

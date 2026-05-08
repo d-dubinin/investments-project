@@ -12,23 +12,23 @@ class FXDataFetcher:
     END_DATE   = "2024-12-31"
 
     SERIES = [
-        ("AUD", "spot",  2427, False),
-        ("CAD", "spot",  2429, False),
-        ("EUR", "spot",  2561, True),
-        ("GBP", "spot",  2428, False),
-        ("JPY", "spot",  2538, False),
-        ("NZD", "spot",  2441, False),
-        ("AUD", "fwd1m", 2601, True),
-        ("CAD", "fwd1m", 2616, False),
-        ("EUR", "fwd1m", 2562, True),
-        ("GBP", "fwd1m", 2539, True),
-        ("JPY", "fwd1m", 2544, False),
-        ("NZD", "fwd1m", 2676, True),
+        ("AUD", "spot",  2427, True),
+        ("CAD", "spot",  2429, True),
+        ("EUR", "spot",  2561, False),
+        ("GBP", "spot",  2428, True),
+        ("JPY", "spot",  2538, True),
+        ("NZD", "spot",  2441, True),
+        ("AUD", "fwd1m", 2601, False),
+        ("CAD", "fwd1m", 2616, True),
+        ("EUR", "fwd1m", 2562, False),
+        ("GBP", "fwd1m", 2539, False),
+        ("JPY", "fwd1m", 2544, True),
+        ("NZD", "fwd1m", 2676, False),
     ]
 
     FALLBACK_SPOT = [
-        ("AUD", 2594, True),
-        ("NZD", 2595, True),
+        ("AUD", 2594, False),
+        ("NZD", 2595, False),
     ]
 
     def __init__(self, wrds_username: str):

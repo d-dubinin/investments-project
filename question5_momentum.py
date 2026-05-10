@@ -54,8 +54,7 @@ def compute_momentum_strategies(
            .sort_index()[currencies]
     )
 
-    # Match your friend's carry-code convention:
-    # use signals and returns with the same ym index.
+    # Align signals and returns on the monthly index.
     common_idx = ret_wide.index.intersection(signal.dropna().index)
 
     ret_wide = ret_wide.loc[common_idx]

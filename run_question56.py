@@ -16,17 +16,17 @@ from question5_momentum import (
 fx_panel = pd.read_csv("data/fx_monthly_panel.csv", parse_dates=["date"])
 rates_wide = pd.read_csv("data/ir_monthly_wide.csv", parse_dates=["date"])
 
-# Using the excessreturn calculator class
+# Initialize excess return calculator
 calc = ExcessReturnCalculator()
 
 # Recompute excess returns and evaluation sample
 returns = calc.compute(fx_panel, rates_wide)
 holdout, evaluation = calc.split(returns)
 
-# Reuse the carry function
+# Compute carry strategies
 carry_returns, carry_weights = calc.compute_carry(evaluation, rates_wide)
 
-# New Question 5 function
+# Compute momentum strategies
 momentum_returns, momentum_weights = compute_momentum_strategies(
     fx_panel=fx_panel,
     returns=evaluation,
@@ -36,7 +36,7 @@ momentum_returns, momentum_weights = compute_momentum_strategies(
 # Combine carry and momentum returns
 factor_returns = carry_returns.merge(momentum_returns, on="date", how="inner")
 
-# Table 2 with carry + momentum for now
+# Summary table for carry and momentum strategies
 table2 = compute_strategy_summary(
     factor_returns,
     columns=[

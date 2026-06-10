@@ -169,7 +169,7 @@ class ExcessReturnCalculator:
         for ax, group, title in zip(axes, [group1, group2],
                                 ["AUD, CAD, EUR", "GBP, JPY, NZD"]):
             for ccy, ls, col in zip(group, linestyles, colors):
-                ax.plot(weights["date"], weights[ccy],
+                ax.plot(weights["date"].to_numpy(), weights[ccy].to_numpy(),
                         label=ccy, linestyle=ls, color=col, linewidth=1.2)
             ax.axhline(0, color="black", linewidth=0.8, linestyle=":")
             ax.set_ylabel("Weight")

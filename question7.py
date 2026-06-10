@@ -55,12 +55,7 @@ def mean_variance_portfolio(returns_wide: pd.DataFrame) -> tuple[pd.Series, pd.S
     raw_weights = np.linalg.solve(sigma.to_numpy(), mu.to_numpy())
     weights = pd.Series(raw_weights, index=returns_wide.columns)
 
-    # Normalize by the L1 norm (gross exposure = 1), NOT by the signed sum.
-    # The MV-efficient direction is w* ∝ Σ^{-1}μ with a POSITIVE proportionality
-    # constant; dividing by weights.sum() flips the sign whenever the weights sum
-    # to a negative number (as they do for the currency block), turning the
-    # tangency portfolio into its loss-making mirror image. The downstream
-    # 10%-vol scaling sets the magnitude, so only the sign matters here.
+    # normalize by gross exposure (L1) to keep the portfolio sign correct
     weights = weights / weights.abs().sum()
 
     portfolio_returns = returns_wide @ weights

@@ -49,14 +49,11 @@ def compute_dollar_strategies(
     ir["ym"] = ir["date"].dt.to_period("M")
     ir = ir.set_index("ym").sort_index()
 
-    # Average interest-rate differential vs USD, computed on the full sample.
+    # average interest-rate differential vs USD (full sample)
     delta_r = ir[currencies].subtract(ir["USD"], axis=0)
     avg_delta_r = delta_r.mean(axis=1)
 
-    # Use the differential known at formation time (end of month t-1) for the
-    # return realized over month t. Shift by one month before aligning to the
-    # returns index, exactly like the carry construction, to avoid a one-month
-    # look-ahead in the sign of the position.
+    # use the previous month's differential, known at the formation date
     avg_delta_r = avg_delta_r.shift(1).reindex(ret_wide.index)
 
     # DOLLAR-CARRY:
@@ -77,7 +74,7 @@ def compute_dollar_strategies(
     print(f"\nDollar shape : {dollar_returns.shape}  (expected 360 rows)")
     print(
         f"Date range   : "
-        f"{dollar_returns['date'].min().date()} → "
+        f"{dollar_returns['date'].min().date()} -> "
         f"{dollar_returns['date'].max().date()}"
     )
 

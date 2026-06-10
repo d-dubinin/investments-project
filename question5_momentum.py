@@ -45,6 +45,14 @@ def compute_momentum_strategies(
     # Momentum signal: s_{t-12,t} = S_t / S_{t-12} - 1
     signal = spot_wide / spot_wide.shift(12) - 1
 
+    # Lag the signal by one month so the weight formed at the end of month t-1
+    # (using S_{t-1}) is applied to the return X_t realized over month t.
+    # Returns are labelled by their realization month (see ExcessReturnCalculator),
+    # so without this shift the weight for X_t would use S_t — the same spot that
+    # determines X_t — introducing a one-month look-ahead bias.
+    # This mirrors `delta_r = delta_r.shift(1)` in the carry construction.
+    signal = signal.shift(1)
+
     # Returns in wide format: ym × currency
     ret = returns.copy()
     ret["ym"] = ret["date"].dt.to_period("M")

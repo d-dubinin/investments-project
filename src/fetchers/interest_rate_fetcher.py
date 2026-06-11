@@ -70,7 +70,7 @@ class InterestRateFetcher:
             wide_filename: str = "ir_monthly_wide.csv",
             long_filename: str = "ir_monthly_long.csv",
             ) -> None:
-        folder = Path("data")
+        folder = Path("data/raw")
         folder.mkdir(parents=True, exist_ok=True)
         wide_out = folder / wide_filename
         long_out = folder / long_filename

@@ -1,6 +1,6 @@
 """
-Question 8 – Out-of-sample Portfolio Analysis
-==============================================
+Out-of-sample Portfolio Analysis (Question 8)
+=============================================
 Implements:
   - EWMA conditional covariance  (Q8a)
   - Expanding-mean conditional mean forecast  (Q8b)
@@ -90,9 +90,6 @@ def compute_ewma_covariance(
     return sigma_t
 
 
-
-
-
 # ── Q8b: Expanding-mean Conditional Mean ─────────────────────────────────────
 
 def compute_expanding_mean(returns_wide: pd.DataFrame) -> pd.DataFrame:
@@ -103,11 +100,6 @@ def compute_expanding_mean(returns_wide: pd.DataFrame) -> pd.DataFrame:
     Returns a PeriodIndex DataFrame with the same index/columns as returns_wide.
     """
     return returns_wide.expanding(min_periods=1).mean()
-
-
-
-
-
 
 
 # ── Q8c: Fama-MacBeth helpers ────────────────────────────────────────────────
@@ -202,8 +194,6 @@ def run_fm_regressions(
     return df
 
 
-
-
 def compute_fm_forecast(
     fm_estimates: pd.DataFrame,
     delta_r:      pd.DataFrame,
@@ -269,13 +259,6 @@ def compute_fm_forecast(
     return fm_df
 
 
-
-
-
-
-
-
-
 # ── Q8e: CMVE Portfolio Construction ─────────────────────────────────────────
 
 def _cmve_one_period(
@@ -305,9 +288,6 @@ def _cmve_one_period(
 
     k = target_vol / np.sqrt(12.0 * port_var_monthly)
     return float(k * (Sigma_inv_mu @ X_next))
-
-
-
 
 
 def compute_cmve_portfolio_returns(
@@ -376,11 +356,6 @@ def compute_cmve_portfolio_returns(
     return df
 
 
-
-
-
-
-
 # ── Q8d/f: Summary Statistics ─────────────────────────────────────────────────
 
 def performance_table(portfolio_returns: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
@@ -401,11 +376,6 @@ def performance_table(portfolio_returns: pd.DataFrame, columns: list[str]) -> pd
             "Sharpe ratio":  round(sharpe,   2),
         }
     return pd.DataFrame(rows)
-
-
-
-
-
 
 
 def fm_coefficient_table(

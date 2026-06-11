@@ -1,27 +1,31 @@
 """
-run_question8.py
-================
 Orchestration script for Question 8 (Out-of-sample Portfolio Analysis).
 
 Prerequisites
 -------------
-Run main.py (or the data-fetch scripts) first so that
-  data/fx_monthly_panel.csv
-  data/ir_monthly_wide.csv
-exist in the current working directory.
+Run scripts/fetch_data.py first so that
+  data/raw/fx_monthly_panel.csv
+  data/raw/ir_monthly_wide.csv
+exist in the project root.
 
 Usage
 -----
   cd investments-project
-  python run_question8.py
+  python scripts/run_q8.py
 """
+
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT / "src"))
 
 import pandas as pd
 import numpy as np
 from tabulate import tabulate
 
-from excess_return import ExcessReturnCalculator
-from question8 import (
+from core.excess_return import ExcessReturnCalculator
+from portfolios.oos import (
     CURRENCIES,
     EVAL_START,
     to_period_wide,
@@ -36,10 +40,14 @@ from question8 import (
     fm_coefficient_table,
 )
 
+DATA_RAW = ROOT / "data" / "raw"
+DATA_OUT = ROOT / "data" / "output"
+DATA_OUT.mkdir(parents=True, exist_ok=True)
+
 # ── 1. Load data ──────────────────────────────────────────────────────────────
 print("Loading data …")
-fx_panel   = pd.read_csv("data/fx_monthly_panel.csv",  parse_dates=["date"])
-rates_wide = pd.read_csv("data/ir_monthly_wide.csv",   parse_dates=["date"])
+fx_panel   = pd.read_csv(DATA_RAW / "fx_monthly_panel.csv",  parse_dates=["date"])
+rates_wide = pd.read_csv(DATA_RAW / "ir_monthly_wide.csv",   parse_dates=["date"])
 
 # ── 2. Compute excess returns ─────────────────────────────────────────────────
 calc = ExcessReturnCalculator()
@@ -122,14 +130,8 @@ table4 = performance_table(ccv_returns, ["CCV-Exp", "CCV-FM"])
 print(tabulate(table4, headers="keys", tablefmt="rounded_outline", floatfmt=".4f"))
 
 # ── 11. Save outputs ──────────────────────────────────────────────────────────
-from pathlib import Path
-Path("data").mkdir(exist_ok=True)
-
-ccv_returns.to_csv("data/question8_ccv_returns.csv")
-fm_estimates.to_csv("data/question8_fm_estimates.csv")
-coef_table.to_csv("data/question8_fm_coeff_table.csv")
-table4.to_csv("data/table4_question8.csv")
-print("\nSaved: data/question8_ccv_returns.csv")
-print("Saved: data/question8_fm_estimates.csv")
-print("Saved: data/question8_fm_coeff_table.csv")
-print("Saved: data/table4_question8.csv")
+ccv_returns.to_csv(DATA_OUT / "question8_ccv_returns.csv")
+fm_estimates.to_csv(DATA_OUT / "question8_fm_estimates.csv")
+coef_table.to_csv(DATA_OUT / "question8_fm_coeff_table.csv")
+table4.to_csv(DATA_OUT / "table4_question8.csv")
+print(f"\nSaved outputs to {DATA_OUT}/")

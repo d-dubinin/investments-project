@@ -1,15 +1,24 @@
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
 import pandas as pd
 
-from excess_return import ExcessReturnCalculator
-from question5_momentum import compute_momentum_strategies
-from question6_dollar import compute_dollar_strategies
-from question7 import compute_question7_portfolios
+from core.excess_return import ExcessReturnCalculator
+from strategies.momentum import compute_momentum_strategies
+from strategies.dollar import compute_dollar_strategies
+from portfolios.construction import compute_question7_portfolios
 
+DATA_RAW = ROOT / "data" / "raw"
+DATA_OUT = ROOT / "data" / "output"
+DATA_OUT.mkdir(parents=True, exist_ok=True)
 
 currencies = ["AUD", "CAD", "EUR", "GBP", "JPY", "NZD"]
 
-fx_panel = pd.read_csv("data/fx_monthly_panel.csv", parse_dates=["date"])
-rates_wide = pd.read_csv("data/ir_monthly_wide.csv", parse_dates=["date"])
+fx_panel   = pd.read_csv(DATA_RAW / "fx_monthly_panel.csv", parse_dates=["date"])
+rates_wide = pd.read_csv(DATA_RAW / "ir_monthly_wide.csv",  parse_dates=["date"])
 
 calc = ExcessReturnCalculator()
 
@@ -44,7 +53,6 @@ print(table3.to_string())
 print("\n=== Question 7 Portfolio Weights ===")
 print(question7_weights.round(4).to_string())
 
-# Save Q7 outputs for reproducibility and for easy inclusion in the report.
-question7_returns.to_csv("question7_portfolio_returns.csv", index=False)
-table3.to_csv("table3_question7.csv")
-question7_weights.to_csv("question7_weights.csv")
+question7_returns.to_csv(DATA_OUT / "question7_portfolio_returns.csv", index=False)
+table3.to_csv(DATA_OUT / "table3_question7.csv")
+question7_weights.to_csv(DATA_OUT / "question7_weights.csv")

@@ -112,7 +112,7 @@ class FXDataFetcher:
         return panel
 
     def save(self, panel: pd.DataFrame, filename: str = "fx_monthly_panel.csv") -> None:
-        folder = Path("data")
+        folder = Path("data/raw")
         folder.mkdir(parents=True, exist_ok=True)
         out = folder / filename
         panel.to_csv(out, index=False)

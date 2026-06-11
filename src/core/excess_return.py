@@ -77,7 +77,7 @@ class ExcessReturnCalculator:
             kurt     = stats.kurtosis(x)
             n        = len(x)
             #r_bar    = ir[ccy].dropna().mean() * 1200
-            ir_eval = ir[(ir["date"] >= pd.Timestamp(self.EVAL_START)) & 
+            ir_eval = ir[(ir["date"] >= pd.Timestamp(self.EVAL_START)) &
              (ir["date"] <= pd.Timestamp(self.FULL_END))].copy()
             r_bar = ir_eval[ccy].dropna().mean()
 
@@ -93,16 +93,16 @@ class ExcessReturnCalculator:
             }
 
         return pd.DataFrame(rows)[self.CURRENCIES]
-    
+
     def compute_carry(self, returns: pd.DataFrame, rates_wide: pd.DataFrame) -> pd.DataFrame:
         """
         Compute CS-CARRY and TS-CARRY strategy returns.
-    
+
         arameters
         ----------
         returns    : date | currency | X   (evaluation sample, monthly decimals)
         rates_wide : date | AUD | ... | USD (monthly decimals)
-    
+
         Returns
         -------
         pd.DataFrame : date | R_CS_CARRY | R_TS_CARRY
@@ -156,7 +156,7 @@ class ExcessReturnCalculator:
 
         self._print_carry_summary(result)
         return result, weights
-    
+
     def plot_carry_weights(self, weights: pd.DataFrame) -> None:
         group1 = ["AUD", "CAD", "EUR"]
         group2 = ["GBP", "JPY", "NZD"]
@@ -180,7 +180,7 @@ class ExcessReturnCalculator:
         axes[1].set_xlabel("Date")
 
         plt.tight_layout()
-        plt.savefig("data/cs_carry_weights.png", dpi=150)
+        plt.savefig("data/output/cs_carry_weights.png", dpi=150)
         plt.show(block=False)
 
     def compute_carry_summary(self, carry: pd.DataFrame) -> pd.DataFrame:
@@ -225,12 +225,10 @@ class ExcessReturnCalculator:
         corr_df = pd.DataFrame.from_dict(correlations, orient="index", columns=["corr(fd, Δr)"])
         corr_df.loc["Average"] = corr_df.mean()
         return corr_df
-    
+
     @staticmethod
     def _print_carry_summary(result: pd.DataFrame) -> None:
         print(f"\nShape      : {result.shape}  (expected 360 rows)")
         print(f"Date range : {result['date'].min().date()} → {result['date'].max().date()}")
         print("\n=== Sample (first 12 rows) ===")
         print(result.head(12).to_string(index=False))
-
-    

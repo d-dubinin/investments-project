@@ -117,13 +117,13 @@ class ExcessReturnCalculator:
         ret_wide["ym"] = ret_wide["date"].dt.to_period("M")
         ret_wide = ret_wide.pivot(index="ym", columns="currency", values="X")[self.CURRENCIES]
 
-        # Merge interest rates aligned on ym
-        ir = ir.set_index("ym")[self.CURRENCIES + ["USD"]]
-        ir = ir.loc[ir.index.isin(ret_wide.index)] 
+        # Interest rates indexed on ym (full sample, sorted)
+        ir = ir.set_index("ym")[self.CURRENCIES + ["USD"]].sort_index()
 
-        # Compute interest rate differentials: dt r_t^i = r_t^i - r_t^US
+        # Interest rate differential, lagged one month then aligned on the eval
+        # months, so Jan 1995 uses the Dec 1994 differential instead of a missing value
         delta_r = ir[self.CURRENCIES].subtract(ir["USD"], axis=0)
-        delta_r = delta_r.shift(1)
+        delta_r = delta_r.shift(1).reindex(ret_wide.index)
 
         # ── CS-CARRY ─────────────────────────────────────────────────────────────
         # Rank each month (1=lowest, 6=highest)

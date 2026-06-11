@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+ROOT = Path(__file__).parent
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 
 import pandas as pd
 from tabulate import tabulate
@@ -33,16 +35,35 @@ from portfolios.oos import (
 
 import numpy as np
 
-DATA_RAW = Path("data/raw")
-DATA_OUT = Path("data/output")
+DATA_RAW = ROOT / "data" / "raw"
+DATA_OUT = ROOT / "data" / "output"
 DATA_OUT.mkdir(parents=True, exist_ok=True)
 
 CURRENCIES = ["AUD", "CAD", "EUR", "GBP", "JPY", "NZD"]
 
+# ── Fetch data if missing ──────────────────────────────────────────────────────
+_fx_file   = DATA_RAW / "fx_monthly_panel.csv"
+_ir_file   = DATA_RAW / "ir_monthly_wide.csv"
+
+if not _fx_file.exists() or not _ir_file.exists():
+    print("Raw data files not found — fetching from WRDS / FRED …")
+    from config import WRDS_USERNAME
+    from fetchers.fx_data_fetcher import FXDataFetcher
+    from fetchers.interest_rate_fetcher import InterestRateFetcher
+
+    fx = FXDataFetcher(wrds_username=WRDS_USERNAME)
+    fx_panel_raw = fx.fetch()
+    fx.save(fx_panel_raw)
+
+    ir = InterestRateFetcher()
+    rates_wide_raw, rates_long_raw = ir.fetch()
+    ir.save(rates_wide_raw, rates_long_raw)
+    print("Data saved to data/raw/\n")
+
 # ── Load data ─────────────────────────────────────────────────────────────────
 print("Loading data …")
-fx_panel   = pd.read_csv(DATA_RAW / "fx_monthly_panel.csv", parse_dates=["date"])
-rates_wide = pd.read_csv(DATA_RAW / "ir_monthly_wide.csv",  parse_dates=["date"])
+fx_panel   = pd.read_csv(_fx_file,  parse_dates=["date"])
+rates_wide = pd.read_csv(_ir_file,  parse_dates=["date"])
 
 calc = ExcessReturnCalculator()
 returns      = calc.compute(fx_panel, rates_wide)
